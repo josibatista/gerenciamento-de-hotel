@@ -3,8 +3,36 @@ const db = require('../config/db_sequelize');
 module.exports = {
     async postCliente(req, res) {
         try {
+            const { cpf, telefone } = req.body;
+
+            // VALIDAÇÃO DE CPF
+            if (cpf) {
+                const cpfLimpo = cpf.replace(/\D/g, ''); 
+                
+                if (cpfLimpo.length !== 11) {
+                    return res.status(422).json({ error: 'CPF inválido! Deve ter 11 dígitos.' });
+                }
+
+                const cpfExiste = await db.Cliente.findOne({ where: { cpf: cpf } });
+                if (cpfExiste) {
+                    return res.status(409).json({ error: 'Este CPF já está cadastrado!' });
+                }
+            } else {
+                return res.status(422).json({ error: 'O campo CPF é obrigatório!' });
+            }
+
+            // VALIDAÇÃO DE TELEFONE
+            if (telefone) {
+                const telLimpo = telefone.replace(/\D/g, '');
+
+                if (telLimpo.length < 10) {
+                    return res.status(422).json({ error: 'Telefone inválido! Inclua o DDD.' });
+                }
+            }
+
             const cliente = await db.Cliente.create(req.body);
             res.status(201).json(cliente);
+
         } catch (err) {
             console.error(err);
             res.status(500).json({ error: 'Erro ao criar cliente!' });
@@ -25,15 +53,32 @@ module.exports = {
             if (cliente) {
                 res.status(200).json(cliente);
             } else {
-                res.status(404).json({ error: 'Cliente não encontrado' });
+                res.status(404).json({ error: 'Cliente não encontrado.' });
             }
         } catch (err) {
             console.error(err);
-            res.status(500).json({ error: 'Erro ao obter cliente!' });
+            res.status(500).json({ error: 'Erro ao encontrar cliente!' });
         }
     },
     async putCliente(req, res) {
         try {
+            
+            const { cpf, telefone } = req.body;
+
+            if (cpf) {
+                const cpfLimpo = cpf.replace(/\D/g, '');
+                if (cpfLimpo.length !== 11) {
+                    return res.status(422).json({ error: 'CPF inválido! Deve ter 11 dígitos.' });
+                }
+            }
+
+            if (telefone) {
+                const telLimpo = telefone.replace(/\D/g, '');
+                if (telLimpo.length < 10) {
+                    return res.status(422).json({ error: 'Telefone inválido!' });
+                }
+            }
+
             const [updated] = await db.Cliente.update(req.body, {
                 where: { id: req.params.id }
             });

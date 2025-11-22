@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const ClienteForm = () => {
     const [nome, setNome] = useState('');
@@ -12,6 +13,7 @@ const ClienteForm = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setMensagem('');
         //const token = localStorage.getItem('token');
 
         try {
@@ -23,12 +25,12 @@ const ClienteForm = () => {
                 },
                 body: JSON.stringify({ nome, telefone, email, cpf, senha })
             });
+            const data = await response.json(); 
 
             if (!response.ok) {
-                throw new Error('Erro ao criar cliente!');
+                throw new Error(data.error || 'Erro desconhecido ao criar cliente');
             }
-
-            const data = await response.json();
+            const id = data.id;
             console.log('Cliente criado:', data);
             setMensagem('Cliente cadastrado com sucesso!');
             // Limpar os campos após o cliente ser cadastrado
@@ -37,14 +39,20 @@ const ClienteForm = () => {
             setEmail('');
             setCpf('');
             setSenha('');
+
+            setTimeout(() => {
+                navigate(`/clientes/${data.id}`);
+            }, 1000);
+
         } catch (error) {
-            console.error('Erro ao criar cliente:', error);
-            setMensagem('Erro ao cadastrar cliente!');
+            console.error('Erro:', error);
+            setMensagem(error.message); 
         }
     };
 
     return (
-        <div>
+        <div className="container">
+            <h2>Cadastrar Cliente</h2>
             <form onSubmit={handleSubmit}>
                 <div>
                     <label>Nome</label>
@@ -52,23 +60,28 @@ const ClienteForm = () => {
                 </div>
                 <div>
                     <label>Telefone</label>
-                    <input type="text" value={telefone} onChange={e => setTelefone(e.target.value)} required />
+                    <input type="text" placeholder="(99) 99999-9999" value={telefone} onChange={e => setTelefone(e.target.value)} required />
                 </div>
                 <div>
                     <label>Email</label>
-                    <input type="text" value={email} onChange={e => setEmail(e.target.value)} required />
+                    <input type="email" placeholder="usuario@email.com" value={email} onChange={e => setEmail(e.target.value)} required />
                 </div>
                 <div>
                     <label>CPF</label>
-                    <input type="text" value={cpf} onChange={e => setCpf(e.target.value)} required />
+                    <input type="text" placeholder="999.999.999-99" value={cpf} onChange={e => setCpf(e.target.value)} required />
                 </div>
                 <div>
                     <label>Senha</label>
                     <input type="password" value={senha} onChange={e => setSenha(e.target.value)} required />
                 </div>
-                <button type="submit">Criar cliente</button>
+                <button type="submit">Cadastrar</button>
             </form>
-            {mensagem && <p>{mensagem}</p>}
+            
+            {mensagem && (
+                <p style={{ color: mensagem.includes('sucesso') ? 'green' : 'red', fontWeight: 'bold' }}>
+                    {mensagem}
+                </p>
+            )}
         </div>
     );
 };
