@@ -13,8 +13,12 @@ db.sequelize.sync({force: true}).then(() => {
 });*/
 //db.Usuario.create({login:'admin', senha:'1234', tipo:2});
 
+//router.post('/login', authController.login);
 
-router.post('/login', authController.login);
-
+router.get('/quartos', quartoController.getQuartos);
+router.post('/quartos', quartoController.postQuarto);
+router.get('/quartos/:id', quartoController.getQuartoById);
+router.put('/quartos/:id', quartoController.putQuarto);
+router.delete('/quartos/:id', quartoController.deleteQuarto);
 
 module.exports = router;
