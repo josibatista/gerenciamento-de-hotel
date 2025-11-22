@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 function QuartoList() {
     const [quartos, setQuartos] = useState([]);
     const [isEditMode, setIsEditMode] = useState(false);
+    const [mensagem, setMensagem] = useState('');
     const [currentQuarto, setCurrentQuarto] = useState({
         id: '',
         codigo: '',
@@ -65,7 +66,20 @@ function QuartoList() {
     };
 
     const handleEditSubmit = (e) => {
-        e.preventDefault();
+        e.preventDefault(); 
+
+        const valor = parseFloat(currentQuarto.valorDiaria);
+        if (isNaN(valor)) {
+            setMensagem('Valor da diária inválido. Digite um número.');
+            return; 
+        }
+
+        const codigoExistente = quartos.some(q => q.codigo === currentQuarto.codigo && q.id !== currentQuarto.id);
+        if (codigoExistente) {
+            setMensagem('Código já existe. Escolha outro código.');
+            return;
+        }
+
         const token = localStorage.getItem('token');
 
         fetch(`http://localhost:8080/api/quartos/${currentQuarto.id}`, {
@@ -170,6 +184,7 @@ function QuartoList() {
                         <button type="submit">Salvar</button>
                         <button type="button" onClick={() => setIsEditMode(false)}>Cancelar</button>
                     </form>
+                    {mensagem && <p>{mensagem}</p>}
                 </div>
             )}
         </>

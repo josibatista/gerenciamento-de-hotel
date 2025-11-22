@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
 
 const QuartoForm = () => {
     const [codigo, setCodigo] = useState('');
@@ -7,6 +8,7 @@ const QuartoForm = () => {
     const [valorDiaria, setValorDiaria] = useState('');
     const [quartos, setQuartos] = useState([]);
     const [mensagem, setMensagem] = useState('');
+    const navigate = useNavigate();
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -29,7 +31,20 @@ const QuartoForm = () => {
     }, []);
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
+        e.preventDefault(); 
+
+        const valor = parseFloat(valorDiaria);
+        if (isNaN(valor)) {
+            setMensagem('Valor da diária inválido. Digite um número.');
+            return; 
+        }
+
+        const codigoExistente = quartos.some(q => q.codigo === codigo);
+        if (codigoExistente) {
+            setMensagem('Código já existe. Escolha outro código.');
+            return;
+        }
+
         const token = localStorage.getItem('token');
 
         try {
@@ -55,6 +70,11 @@ const QuartoForm = () => {
             setValorDiaria('');
 
             setQuartos([...quartos, data]);
+
+            setTimeout(() => {
+                navigate('/quartos/lista');
+            }, 2000);
+
         } catch(error) {
             console.error('Erro ao criar quarto:', error);
             setMensagem('Erro ao cadastrar quarto');
@@ -72,7 +92,6 @@ const QuartoForm = () => {
                     <label>Tipo</label>
                     <select value={tipo} onChange={e => setTipo(e.target.value)} required>
                         <option value="">Selecione uma categoria</option>
-                        <option value="">Selecione o tipo</option>
                         <option value="solteiro">Solteiro</option>
                         <option value="duplo">Duplo</option>
                         <option value="casal">Casal</option>
