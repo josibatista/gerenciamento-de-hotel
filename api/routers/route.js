@@ -7,11 +7,11 @@ const autenticarToken = require('../middleware/autenticarToken');
 
 const router = express.Router();
 
-/*const db = require('../config/db_sequelize');
-db.sequelize.sync({force: true}).then(() => {
-    console.log('{ force: true }');
-});*/
-//db.Usuario.create({login:'admin', senha:'1234', tipo:2});
+// const db = require('../config/db_sequelize');
+// db.sequelize.sync({force: true}).then(() => {
+//     console.log('{ force: true }');
+// });
+// db.Usuario.create({login:'admin', senha:'1234', tipo:2});
 
 //router.post('/login', authController.login);
 
