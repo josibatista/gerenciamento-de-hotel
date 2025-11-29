@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import '../../App.css'; 
 
 const ClienteForm = () => {
     const [nome, setNome] = useState('');
@@ -21,7 +22,6 @@ const ClienteForm = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    //'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({ nome, telefone, email, cpf, senha })
             });
@@ -51,37 +51,86 @@ const ClienteForm = () => {
     };
 
     return (
-        <div className="container">
-            <h2>Cadastrar Cliente</h2>
-            <form onSubmit={handleSubmit}>
-                <div>
-                    <label>Nome</label>
-                    <input type="text" value={nome} onChange={e => setNome(e.target.value)} required />
-                </div>
-                <div>
-                    <label>Telefone</label>
-                    <input type="text" placeholder="(99) 99999-9999" value={telefone} onChange={e => setTelefone(e.target.value)} required />
-                </div>
-                <div>
-                    <label>Email</label>
-                    <input type="email" placeholder="usuario@email.com" value={email} onChange={e => setEmail(e.target.value)} required />
-                </div>
-                <div>
-                    <label>CPF</label>
-                    <input type="text" placeholder="999.999.999-99" value={cpf} onChange={e => setCpf(e.target.value)} required />
-                </div>
-                <div>
-                    <label>Senha</label>
-                    <input type="password" value={senha} onChange={e => setSenha(e.target.value)} required />
-                </div>
-                <button type="submit">Cadastrar</button>
-            </form>
+        <div className="conteudo-pagina login-container">
             
-            {mensagem && (
-                <p style={{ color: mensagem.includes('sucesso') ? 'green' : 'red', fontWeight: 'bold' }}>
-                    {mensagem}
-                </p>
-            )}
+            <div className="card">
+                <h2 className="login-header">Cadastrar Cliente</h2>
+
+                {mensagem && (
+                    <div className={mensagem.includes('sucesso') ? 'alert-sucesso' : 'alert-erro'}>
+                        {mensagem}
+                    </div>
+                )}
+
+                <form onSubmit={handleSubmit}>
+                    <div className="form-group">
+                        <label>Nome</label>
+                        <input 
+                            type="text" 
+                            value={nome} 
+                            onChange={e => setNome(e.target.value)} 
+                            required 
+                            placeholder="Nome completo"
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label>Telefone</label>
+                        <input 
+                            type="text" 
+                            placeholder="(99) 99999-9999" 
+                            value={telefone} 
+                            onChange={e => setTelefone(e.target.value)} 
+                            required 
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label>Email</label>
+                        <input 
+                            type="email" 
+                            placeholder="usuario@email.com" 
+                            value={email} 
+                            onChange={e => setEmail(e.target.value)} 
+                            required 
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label>CPF</label>
+                        <input 
+                            type="text" 
+                            placeholder="999.999.999-99" 
+                            value={cpf} 
+                            onChange={e => setCpf(e.target.value)} 
+                            required 
+                        />
+                    </div>
+
+                    <div className="form-group">
+                        <label>Senha</label>
+                        <input 
+                            type="password" 
+                            value={senha} 
+                            onChange={e => setSenha(e.target.value)} 
+                            required 
+                            placeholder="Crie uma senha segura"
+                        />
+                    </div>
+
+                    <div className="form-actions">
+                        <button type="submit">Cadastrar</button>
+                        
+                        <button 
+                            type="button" 
+                            className="btn-secundario" 
+                            onClick={() => navigate('/')}
+                        >
+                            Voltar
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     );
 };
