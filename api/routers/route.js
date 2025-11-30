@@ -6,7 +6,7 @@ const reservaController = require('../controllers/reservaController');
 
 const router = express.Router();
 
-const authenticateToken = require('../middleware/authenticateToken');
+const autenticarToken = require('../middleware/autenticarToken');
 const checkAdmin = require('../middleware/checkAdmin');
 
 // const db = require('../config/db_sequelize');
@@ -24,23 +24,23 @@ router.get('/quartos/:id', quartoController.getQuartoById);
 
 
 //ROTAS AUTENTICADAS
-router.get('/clientes/:id', authenticateToken, clienteController.getClienteById);
-router.put('/clientes/:id', authenticateToken, clienteController.putCliente);
+router.get('/clientes/:id', autenticarToken, clienteController.getClienteById);
+router.put('/clientes/:id', autenticarToken, clienteController.putCliente);
 
-// router.post('/reservas', authenticateToken, reservaController.postReserva);
-// router.get('/reservas', authenticateToken, reservaController.getReservas); 
-// router.get('/reservas/:id', authenticateToken, reservaController.getReservaById);
+// router.post('/reservas', autenticarToken, reservaController.postReserva);
+// router.get('/reservas', autenticarToken, reservaController.getReservas); 
+// router.get('/reservas/:id', autenticarToken, reservaController.getReservaById);
 
 
 //ROTAS EXCLUSIVAS ADMIN
-router.get('/clientes', authenticateToken, checkAdmin, clienteController.getClientes);
-router.delete('/clientes/:id', authenticateToken, checkAdmin, clienteController.deleteCliente);
+router.get('/clientes', autenticarToken, checkAdmin, clienteController.getClientes);
+router.delete('/clientes/:id', autenticarToken, checkAdmin, clienteController.deleteCliente);
 
-router.post('/quartos', authenticateToken, checkAdmin, quartoController.postQuarto);
-router.put('/quartos/:id', authenticateToken, checkAdmin, quartoController.putQuarto);
-router.delete('/quartos/:id', authenticateToken, checkAdmin, quartoController.deleteQuarto);
+router.post('/quartos', autenticarToken, checkAdmin, quartoController.postQuarto);
+router.put('/quartos/:id', autenticarToken, checkAdmin, quartoController.putQuarto);
+router.delete('/quartos/:id', autenticarToken, checkAdmin, quartoController.deleteQuarto);
 
-// router.put('/reservas/:id', authenticateToken, checkAdmin, reservaController.putReserva);
-// router.delete('/reservas/:id', authenticateToken, checkAdmin, reservaController.deleteReserva);
+// router.put('/reservas/:id', autenticarToken, checkAdmin, reservaController.putReserva);
+// router.delete('/reservas/:id', autenticarToken, checkAdmin, reservaController.deleteReserva);
 
 module.exports = router;
