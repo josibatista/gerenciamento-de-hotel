@@ -8,15 +8,13 @@ import Rodape from './Components/Layout/Rodape';
 import Home from './Components/Pages/Home';
 import LoginForm from './Components/Pages/LoginForm';
 
-import ClienteList from './Components/Pages/ClienteList';
 import ClienteForm from './Components/Pages/ClienteForm';
+import ClienteList from './Components/Pages/ClienteList';
 import ClienteView from './Components/Pages/ClienteView';
 
-// import QuartoList from './Components/Pages/QuartoList';
-// import QuartoForm from './Components/Pages/QuartoForm';
-
-// import ReservaList from './Components/Pages/ReservaList';
-// import ReservaForm from './Components/Pages/ReservaForm';
+import QuartoForm from './Components/Pages/QuartoForm';
+import QuartoList from './Components/Pages/QuartoList'; 
+import QuartoView from './Components/Pages/QuartoView';
 
 function App() {
   return (
@@ -33,6 +31,13 @@ function App() {
           <Route path="/clientes" element={<ClienteForm />} />
           <Route path="/clientes/lista" element={<ClienteList />} />
           <Route path="/clientes/:id" element={<ClienteView />} />
+           
+            {/* --- ROTAS DE QUARTOS --- */}
+          <Route path="/" element={<Home />} />
+          <Route path="/quartos" element={<QuartoForm />} />
+          <Route path="/quartos/lista" element={<QuartoList />} />
+          <Route path="/quartos/:id" element={<QuartoView />} />
+           
 
         </Routes>
 

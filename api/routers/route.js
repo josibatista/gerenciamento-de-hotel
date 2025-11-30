@@ -5,14 +5,19 @@ const reservaController = require('../controllers/reservaController');
 
 const router = express.Router();
 
-const db = require('../config/db_sequelize');
-/*db.sequelize.sync({force: true}).then(() => {
-    console.log('{ force: true }');
-});*/
-//db.Usuario.create({login:'admin', senha:'1234', tipo:2});
-
+// const db = require('../config/db_sequelize');
+// db.sequelize.sync({force: true}).then(() => {
+//     console.log('{ force: true }');
+// });
+// db.Usuario.create({login:'admin', senha:'1234', tipo:2});
 
 //router.post('/login', authController.login);
+
+router.get('/quartos', quartoController.getQuartos);
+router.post('/quartos', quartoController.postQuarto);
+router.get('/quartos/:id', quartoController.getQuartoById);
+router.put('/quartos/:id', quartoController.putQuarto);
+router.delete('/quartos/:id', quartoController.deleteQuarto);
 
 router.get('/clientes', clienteController.getClientes);
 router.post('/clientes', clienteController.postCliente);
