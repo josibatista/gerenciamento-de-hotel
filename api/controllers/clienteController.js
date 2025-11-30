@@ -1,4 +1,5 @@
 const db = require('../config/db_sequelize');
+const bcrypt = require('bcrypt');
 
 module.exports = {
     async postCliente(req, res) {
@@ -30,6 +31,8 @@ module.exports = {
                 }
             }
 
+            req.body.senha = await bcrypt.hash(req.body.senha, 10);
+
             const cliente = await db.Cliente.create(req.body);
             res.status(201).json(cliente);
 
@@ -47,7 +50,7 @@ module.exports = {
             res.status(500).json({ error: 'Erro ao listar clientes!' });
         }
     },
-    async getByCliente(req, res) {
+    async getClienteById(req, res) {
         try {
             const cliente = await db.Cliente.findByPk(req.params.id);
             if (cliente) {
@@ -78,6 +81,8 @@ module.exports = {
                     return res.status(422).json({ error: 'Telefone inválido!' });
                 }
             }
+
+            req.body.senha = await bcrypt.hash(req.body.senha, 10);
 
             const [updated] = await db.Cliente.update(req.body, {
                 where: { id: req.params.id }

@@ -1,5 +1,5 @@
 const Sequelize = require('sequelize');
-const sequelize = new Sequelize('gerencia_hotel', 'postgres', '1234', {
+const sequelize = new Sequelize('gerencia_hotel', 'postgres', '12345', {
     host: 'localhost',
     dialect: 'postgres'
   });
@@ -8,7 +8,7 @@ var db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-//db.Cliente = require('../models/cliente.js')(sequelize, Sequelize);
+db.Cliente = require('../models/cliente.js')(sequelize, Sequelize);
 db.Quarto = require('../models/quarto.js')(sequelize, Sequelize);
 //db.Reserva = require('../models/reserva.js')(sequelize, Sequelize);
 

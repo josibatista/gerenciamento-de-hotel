@@ -13,18 +13,16 @@ const router = express.Router();
 
 //router.post('/login', authController.login);
 
+router.get('/clientes', clienteController.getClientes);
+router.post('/clientes', clienteController.postCliente);
+router.get('/clientes/:id', clienteController.getClienteById);
+router.put('/clientes/:id', clienteController.putCliente);
+router.delete('/clientes/:id', clienteController.deleteCliente);
+
 router.get('/quartos', quartoController.getQuartos);
 router.post('/quartos', quartoController.postQuarto);
 router.get('/quartos/:id', quartoController.getQuartoById);
 router.put('/quartos/:id', quartoController.putQuarto);
 router.delete('/quartos/:id', quartoController.deleteQuarto);
-
-router.get('/clientes', clienteController.getClientes);
-router.post('/clientes', clienteController.postCliente);
-router.get('/clientes/:id', clienteController.getByCliente);
-router.put('/clientes/:id', clienteController.putCliente);
-router.delete('/clientes/:id', clienteController.deleteCliente);
-
-
 
 module.exports = router;
