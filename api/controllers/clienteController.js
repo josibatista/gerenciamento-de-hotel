@@ -52,6 +52,14 @@ module.exports = {
     },
     async getClienteById(req, res) {
         try {
+            const idSolicitado = req.params.id;
+            const usuarioLogado = req.user;
+
+            // Se NÃO é admin && o ID que quer ver é diferente do ID dele mesmo
+            if (usuarioLogado.role !== 'admin' && parseInt(idSolicitado) !== usuarioLogado.id) {
+                return res.status(403).json({ error: 'Acesso negado. Você só pode ver seu próprio perfil.' });
+            }
+
             const cliente = await db.Cliente.findByPk(req.params.id);
             if (cliente) {
                 res.status(200).json(cliente);
@@ -65,7 +73,13 @@ module.exports = {
     },
     async putCliente(req, res) {
         try {
-            
+            const idSolicitado = req.params.id;
+            const usuarioLogado = req.user;
+
+            // Se NÃO é admin && o ID que quer editar é diferente do ID dele mesmo
+            if (usuarioLogado.role !== 'admin' && parseInt(idSolicitado) !== usuarioLogado.id) {
+                return res.status(403).json({ error: 'Você não tem permissão para editar este perfil.' });
+            }
             const { cpf, telefone } = req.body;
 
             if (cpf) {
@@ -82,7 +96,9 @@ module.exports = {
                 }
             }
 
-            req.body.senha = await bcrypt.hash(req.body.senha, 10);
+            if (req.body.senha) {
+                req.body.senha = await bcrypt.hash(req.body.senha, 10);
+            }
 
             const [updated] = await db.Cliente.update(req.body, {
                 where: { id: req.params.id }
