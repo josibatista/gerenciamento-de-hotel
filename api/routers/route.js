@@ -1,4 +1,5 @@
 const express = require('express');
+const authController = require('../controllers/authController');
 const clienteController = require('../controllers/clienteController');
 const quartoController = require('../controllers/quartoController');
 const reservaController = require('../controllers/reservaController');
@@ -9,9 +10,8 @@ const router = express.Router();
 // db.sequelize.sync({force: true}).then(() => {
 //     console.log('{ force: true }');
 // });
-// db.Usuario.create({login:'admin', senha:'1234', tipo:2});
 
-//router.post('/login', authController.login);
+router.post('/login', authController.login);
 
 router.get('/clientes', clienteController.getClientes);
 router.post('/clientes', clienteController.postCliente);
