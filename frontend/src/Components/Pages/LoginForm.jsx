@@ -49,6 +49,7 @@ const LoginForm = () => {
             }
 
             localStorage.setItem('token', data.token);
+            localStorage.setItem('userId', data.id);
             if(admin) localStorage.setItem('role', 'admin');
             
             navigate('/'); 

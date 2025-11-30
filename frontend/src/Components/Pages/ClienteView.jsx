@@ -96,7 +96,7 @@ function ClienteView() {
         .then((resp) => {
             if (!resp.ok) throw new Error('Falha ao excluir cliente');
             // Redireciona para a lista de clientes
-            navigate("/clientes"); 
+            navigate("/clientes/lista"); 
         })
         .catch((err) => {
             console.error(err);
@@ -104,105 +104,108 @@ function ClienteView() {
         });
     };
 
-    if (!cliente && !mensagem) return <p>Carregando...</p>;
-    if (!cliente && mensagem) return <p className="error">{mensagem}</p>;
+    if (!cliente && !mensagem) return <div className="conteudo-pagina"><p>Carregando...</p></div>;
+    if (!cliente && mensagem) return <div className="conteudo-pagina"><p className="alert-erro">{mensagem}</p></div>;
 
     return (
-        <div className="container">
-            <h2>Detalhes do Perfil</h2>
+        <div className="conteudo-pagina">
+            <div className="card">
+                <h2 style={{color: 'var(--cor-primaria)', marginBottom: '1.5rem'}}>
+                    {isEditMode ? 'Editar Perfil' : 'Detalhes do Perfil'}
+                </h2>
 
-            {mensagem && <p style={{color: 'blue', fontWeight: 'bold'}}>{mensagem}</p>}
-
-            {/* Campo: NOME */}
-            <div className="form-group">
-                <label>Nome Completo:</label>
-                {isEditMode ? (
-                    <input
-                        type="text"
-                        name="nome"
-                        value={currentCliente.nome}
-                        onChange={handleEditChange}
-                        required
-                    />
-                ) : (
-                    <p>{cliente.nome}</p>
+                {mensagem && (
+                    <div className={mensagem.includes('sucesso') ? 'alert-sucesso' : 'alert-erro'}>
+                        {mensagem}
+                    </div>
                 )}
-            </div>
 
-            {/* Campo: TELEFONE */}
-            <div className="form-group">
-                <label>Telefone:</label>
-                {isEditMode ? (
-                    <input
-                        type="text"
-                        name="telefone"
-                        value={currentCliente.telefone}
-                        onChange={handleEditChange}
-                    />
-                ) : (
-                    <p>{cliente.telefone}</p>
-                )}
-            </div>
+                <div className="form-group">
+                    <label>Nome Completo:</label>
+                    {isEditMode ? (
+                        <input
+                            type="text"
+                            name="nome"
+                            value={currentCliente.nome}
+                            onChange={handleEditChange}
+                            required
+                        />
+                    ) : (
+                        <p style={{fontSize: '1.1rem', margin: '5px 0 0 0'}}>{cliente.nome}</p>
+                    )}
+                </div>
 
-            {/* Campo: EMAIL */}
-            <div className="form-group">
-                <label>Email:</label>
-                {isEditMode ? (
-                    <input
-                        type="email"
-                        name="email"
-                        value={currentCliente.email}
-                        onChange={handleEditChange}
-                    />
-                ) : (
-                    <p>{cliente.email}</p>
-                )}
-            </div>
+                <div className="form-group">
+                    <label>Telefone:</label>
+                    {isEditMode ? (
+                        <input
+                            type="text"
+                            name="telefone"
+                            value={currentCliente.telefone}
+                            onChange={handleEditChange}
+                        />
+                    ) : (
+                        <p style={{fontSize: '1.1rem', margin: '5px 0 0 0'}}>{cliente.telefone}</p>
+                    )}
+                </div>
 
-            {/* Campo: CPF */}
-            <div className="form-group">
-                <label>CPF:</label>
-                {isEditMode ? (
-                    <input
-                        type="text"
-                        name="cpf"
-                        value={currentCliente.cpf}
-                        onChange={handleEditChange}
-                    />
-                ) : (
-                    <p>{cliente.cpf}</p>
-                )}
-            </div>
+                <div className="form-group">
+                    <label>Email:</label>
+                    {isEditMode ? (
+                        <input
+                            type="email"
+                            name="email"
+                            value={currentCliente.email}
+                            onChange={handleEditChange}
+                        />
+                    ) : (
+                        <p style={{fontSize: '1.1rem', margin: '5px 0 0 0'}}>{cliente.email}</p>
+                    )}
+                </div>
 
-            {/* Campo: SENHA */}
-            <div className="form-group">
-                <label>Senha:</label>
-                {isEditMode ? (
-                    <input
-                        type="password"
-                        name="senha"
-                        value={currentCliente.senha}
-                        onChange={handleEditChange}
-                    />
-                ) : (
-                    // TESTAR E ARRUMAR ESSA PARTE - Exibe mascarado ou o valor real (depende da sua preferência)
-                    <p>******</p> 
-                )}
-            </div>
+                <div className="form-group">
+                    <label>CPF:</label>
+                    {isEditMode ? (
+                        <input
+                            type="text"
+                            name="cpf"
+                            value={currentCliente.cpf}
+                            onChange={handleEditChange}
+                        />
+                    ) : (
+                        <p style={{fontSize: '1.1rem', margin: '5px 0 0 0'}}>{cliente.cpf}</p>
+                    )}
+                </div>
 
-            {/* BOTOES DE AÇÃO */}
-            <div style={{marginTop: '20px'}}>
-                {isEditMode ? (
-                    <>
-                        <button onClick={handleSave} style={{marginRight: '10px'}}>Salvar</button>
-                        <button className="btn-secundario" onClick={() => setIsEditMode(false)}>Cancelar</button>
-                    </>
-                ) : (
-                    <>
-                        <button onClick={() => setIsEditMode(true)} style={{marginRight: '10px'}}>Editar</button>
-                        <button className="btn-perigo" onClick={handleDelete}>Excluir</button>
-                    </>
-                )}
+                <div className="form-group">
+                    <label>Senha:</label>
+                    {isEditMode ? (
+                        <input
+                            type="password"
+                            name="senha"
+                            value={currentCliente.senha}
+                            onChange={handleEditChange}
+                            placeholder="Nova senha (opcional)"
+                        />
+                    ) : (
+                        <p style={{fontSize: '1.1rem', margin: '5px 0 0 0'}}>******</p>
+                    )}
+                </div>
+
+                <div className="form-actions" style={{ marginTop: '30px', borderTop: '1px solid #eee', paddingTop: '20px' }}>
+                    {isEditMode ? (
+                        <>
+                            <button onClick={handleSave}>Salvar</button>
+                            <button className="btn-secundario" onClick={() => setIsEditMode(false)}>Cancelar</button>
+                        </>
+                    ) : (
+                        <>
+                            <button onClick={() => setIsEditMode(true)}>Editar</button>
+                            <button className="btn-perigo" onClick={handleDelete}>Excluir</button>
+                            <button className="btn-secundario" onClick={() => navigate('/clientes/lista')}>Voltar</button>
+                        </>
+                    )}
+                </div>
             </div>
         </div>
     );

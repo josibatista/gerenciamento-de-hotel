@@ -17,10 +17,10 @@ function Menu() {
                         <Link to="/" className="nav-link">Home</Link>
                     </li>
                     <li className="nav-item">
-                        <Link to="/reservas" className="nav-link">Reservas</Link>
+                        <Link to="/reservas/lista" className="nav-link">Reservas</Link>
                     </li>
                     <li className="nav-item">
-                        <Link to="/quartos" className="nav-link">Quartos</Link>
+                        <Link to="/quartos/lista" className="nav-link">Quartos</Link>
                     </li>
 
                     {/* Lógica: Se NÃO tem usuário (!user), mostra Login */}
@@ -33,14 +33,14 @@ function Menu() {
                     {/* Lógica: Se tem usuário E ele é admin */}
                     {user && user.role === 'admin' && (
                         <li className="nav-item">
-                             <Link to="/clientes" className="nav-link">Clientes</Link>
+                             <Link to="/clientes/lista" className="nav-link">Clientes</Link>
                         </li>
                     )}
 
                     {/* Lógica: Se tem usuário E ele é cliente */}
                     {user && user.role === 'cliente' && (
                         <li className="nav-item">
-                            <Link to="/cliente" className="nav-link">Meu Perfil</Link>
+                            <Link to="/clientes" className="nav-link">Meu Perfil</Link>
                         </li>
                     )}
 

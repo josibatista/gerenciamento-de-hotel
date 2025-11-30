@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-
-
 function QuartoList() {
     const navigate = useNavigate();
     const [quartos, setQuartos] = useState([]);
@@ -34,6 +32,8 @@ function QuartoList() {
     }, []);
 
     const handleDelete = (id) => {
+        if(!window.confirm("Deseja realmente excluir este quarto?")) return;
+
         const token = localStorage.getItem('token');
 
         fetch(`http://localhost:8080/api/quartos/${id}`, {
@@ -52,44 +52,51 @@ function QuartoList() {
         .catch((err) => console.error(err));
     };
 
-    const handleViewClick = (quarto) => {
-        navigate(`/quartos/${quarto.id}`);
-    };
-
     return (
-        <>
-            <h1>Listar Quartos</h1>
+        <div className="conteudo-pagina">
+            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem'}}>
+                <h2>Listar Quartos</h2>
+                <button onClick={() => navigate('/quartos')}>+ Novo Quarto</button>
+            </div>
 
-            <table>
-                <thead>
-                    <tr>
-                        <th>Código</th>
-                        <th>Tipo</th>
-                        <th>Valor Diária</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {quartos.map((quarto) => (
-                        <tr key={quarto.id}>
-                            <td>{quarto.codigo}</td>
-                            <td>{quarto.tipo}</td>
-                            <td>{quarto.valorDiaria}</td>
-                            <td>
-                                <button onClick={() => handleViewClick(quarto)}>Visualizar</button>
-                                <button onClick={() => handleDelete(quarto.id)}>Excluir</button>
-                            </td>
+            <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Tipo</th>
+                            <th>Valor Diária</th>
+                            <th style={{ width: '200px' }}>Ações</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
 
-            <Link to="/quartos">
-                <button>Criar</button>
-            </Link>
-            {mensagem && <p>{mensagem}</p>}
-        </>
+                    <tbody>
+                        {quartos.map((quarto) => (
+                            <tr key={quarto.id}>
+                                <td>{quarto.codigo}</td>
+                                <td>{quarto.tipo}</td>
+                                <td>R$ {quarto.valorDiaria}</td>
+                                <td>
+                                    <div style={{ display: 'flex', gap: '10px' }}>
+                                        <button onClick={() => navigate(`/quartos/${quarto.id}`)}>
+                                            Visualizar
+                                        </button>
+                                        <button className="btn-perigo" onClick={() => handleDelete(quarto.id)}>
+                                            Excluir
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                        {quartos.length === 0 && (
+                            <tr>
+                                <td colSpan="4" style={{textAlign: 'center', padding: '20px'}}>Nenhum quarto encontrado.</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     );
 }
 
