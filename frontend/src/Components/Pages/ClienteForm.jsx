@@ -15,7 +15,7 @@ const ClienteForm = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setMensagem('');
-        //const token = localStorage.getItem('token');
+        const token = localStorage.getItem('token');
 
         try {
             const response = await fetch('http://localhost:8080/api/clientes', {
@@ -30,7 +30,7 @@ const ClienteForm = () => {
             if (!response.ok) {
                 throw new Error(data.error || 'Erro desconhecido ao criar cliente');
             }
-            const id = data.id;
+            
             console.log('Cliente criado:', data);
             setMensagem('Cliente cadastrado com sucesso!');
             // Limpar os campos após o cliente ser cadastrado
@@ -41,7 +41,11 @@ const ClienteForm = () => {
             setSenha('');
 
             setTimeout(() => {
-                navigate(`/clientes/${data.id}`);
+                if (token) {
+                    navigate(`/clientes/${data.id}`);
+                } else {
+                    navigate('/login');
+                }
             }, 2000);
 
         } catch (error) {
