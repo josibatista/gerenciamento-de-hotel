@@ -2,8 +2,6 @@ const express = require('express');
 const clienteController = require('../controllers/clienteController');
 const quartoController = require('../controllers/quartoController');
 const reservaController = require('../controllers/reservaController');
-const authController = require('../controllers/authController');
-const autenticarToken = require('../middleware/autenticarToken');
 
 const router = express.Router();
 
@@ -20,5 +18,13 @@ router.post('/quartos', quartoController.postQuarto);
 router.get('/quartos/:id', quartoController.getQuartoById);
 router.put('/quartos/:id', quartoController.putQuarto);
 router.delete('/quartos/:id', quartoController.deleteQuarto);
+
+router.get('/clientes', clienteController.getClientes);
+router.post('/clientes', clienteController.postCliente);
+router.get('/clientes/:id', clienteController.getByCliente);
+router.put('/clientes/:id', clienteController.putCliente);
+router.delete('/clientes/:id', clienteController.deleteCliente);
+
+
 
 module.exports = router;
