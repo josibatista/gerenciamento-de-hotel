@@ -8,6 +8,7 @@ var db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
+db.Administrador = require('../models/administrador.js')(sequelize, Sequelize);
 db.Cliente = require('../models/cliente.js')(sequelize, Sequelize);
 db.Quarto = require('../models/quarto.js')(sequelize, Sequelize);
 //db.Reserva = require('../models/reserva.js')(sequelize, Sequelize);

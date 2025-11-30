@@ -1,21 +1,33 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./Menu.css";
 
 function Menu() {
-    // --- SIMULAÇÃO (Depois trocaremos isso pelo Contexto Real) ---
-    // Mude aqui manualmente para testar: 'admin', 'cliente' ou null
-    const user = null; 
-    // -------------------------------------------------------------
+    const navigate = useNavigate();
+
+    const token = localStorage.getItem('token');
+    const role = localStorage.getItem('userRole'); // 'admin' ou 'cliente'
+    const userId = localStorage.getItem('userId');
+
+    // Variável auxiliar para saber se está logado
+    const isLogged = !!token; 
+
+    const handleLogout = () => {
+        localStorage.clear();
+        navigate('/login');
+        window.location.reload();
+    };
 
     return (
         <nav className="navbar">
             <div className="container">
                 <ul className="navbar-nav">
-                    {/* Itens visíveis para TODOS */}
+                    
+                    {/* --- ITENS PÚBLICOS (Visíveis para todos) --- */}
                     <li className="nav-item">
                         <Link to="/" className="nav-link">Home</Link>
                     </li>
+                    
                     <li className="nav-item">
                         <Link to="/reservas/lista" className="nav-link">Reservas</Link>
                     </li>
@@ -23,31 +35,37 @@ function Menu() {
                         <Link to="/quartos/lista" className="nav-link">Quartos</Link>
                     </li>
 
-                    {/* Lógica: Se NÃO tem usuário (!user), mostra Login */}
-                    {!user && (
+                    {/* --- ÁREA DE LOGIN (Se NÃO estiver logado) --- */}
+                    {!isLogged && (
                         <li className="nav-item">
                             <Link to="/login" className="nav-link">Login</Link>
                         </li>
                     )}
 
-                    {/* Lógica: Se tem usuário E ele é admin */}
-                    {user && user.role === 'admin' && (
+                    {/* --- ÁREA DO ADMIN --- */}
+                    {isLogged && role === 'admin' && (
                         <li className="nav-item">
-                             <Link to="/clientes/lista" className="nav-link">Clientes</Link>
+                             <Link to="/clientes/lista" className="nav-link">Gerenciar Clientes</Link>
                         </li>
                     )}
 
-                    {/* Lógica: Se tem usuário E ele é cliente */}
-                    {user && user.role === 'cliente' && (
+                    {/* --- ÁREA DO CLIENTE --- */}
+                    {isLogged && role === 'cliente' && (
                         <li className="nav-item">
-                            <Link to="/clientes" className="nav-link">Meu Perfil</Link>
+                            <Link to={`/clientes/${userId}`} className="nav-link">Meu Perfil</Link>
                         </li>
                     )}
 
-                    {/* Botão de Sair (Só aparece se alguém estiver logado) */}
-                    {user && (
+                    {/* --- BOTÃO SAIR (Se estiver logado) --- */}
+                    {isLogged && (
                         <li className="nav-item">
-                            <span className="nav-link" style={{cursor: 'pointer'}}>Sair</span>
+                            <span 
+                                className="nav-link" 
+                                style={{cursor: 'pointer', color: '#e74c3c'}} // Destaquei em vermelho suave
+                                onClick={handleLogout}
+                            >
+                                Sair
+                            </span>
                         </li>
                     )}
                 </ul>
