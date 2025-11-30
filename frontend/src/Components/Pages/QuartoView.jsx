@@ -7,6 +7,7 @@ function QuartoView() {
     const [quarto, setQuarto] = useState(null);
     const [isEditMode, setIsEditMode] = useState(false);
     const [mensagem, setMensagem] = useState('');
+    const [tipoMensagem, setTipoMensagem] = useState('');
     const [currentQuarto, setCurrentQuarto] = useState({
         codigo: '',
         tipo: '',
@@ -39,46 +40,60 @@ function QuartoView() {
 
     const handleSave = async () => {
         const token = localStorage.getItem('token');
+        setMensagem('');
+        setTipoMensagem('');
 
         const valor = parseFloat(currentQuarto.valorDiaria);
         if (isNaN(valor)) {
             setMensagem('Valor da diária inválido. Digite um número.');
+            setTipoMensagem('erro');
             return; 
         }
 
-        const todosResp = await fetch("http://localhost:8080/api/quartos", {
-            headers: { "Authorization": `Bearer ${token}` }
-        });
-        const todos = await todosResp.json();
-         const codigoIgual = todos.some(q => 
-            q.codigo === currentQuarto.codigo && q.id !== Number(id)
-        );
+        try {
+            const todosResp = await fetch("http://localhost:8080/api/quartos", {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            const todos = await todosResp.json();
+            const codigoIgual = todos.some(q => 
+                q.codigo === currentQuarto.codigo && q.id !== Number(id)
+            );
 
-        if (codigoIgual) {
-            setMensagem("Código já existe! Escolha outro código.");
-            return;
-        }
+            if (codigoIgual) {
+                setMensagem("Código já existe! Escolha outro código.");
+                setTipoMensagem('erro');
+                return;
+            }
 
-        fetch(`http://localhost:8080/api/quartos/${id}`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(currentQuarto)
-        })
-        .then(resp => resp.json())
-        .then(data => {
+            const resp = await fetch(`http://localhost:8080/api/quartos/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(currentQuarto)
+            });
+            
+            const data = await resp.json();
+            if(!resp.ok) throw new Error('Erro ao atualizar');
+
             setQuarto(data);
             setIsEditMode(false);
             setMensagem("Editado com sucesso!");
-        })
-        .catch(err => console.error(err));
+            setTipoMensagem('sucesso');
+
+        } catch (err) {
+            console.error(err);
+            setMensagem("Erro ao salvar alterações.");
+            setTipoMensagem('erro');
+        }
     };
 
     const handleDelete = () => {
-        const token = localStorage.getItem('token');
+        if(!window.confirm("Deseja excluir permanentemente?")) return;
 
+        const token = localStorage.getItem('token');
+        
         fetch(`http://localhost:8080/api/quartos/${id}`, {
             method: 'DELETE',
             headers: {
@@ -93,74 +108,84 @@ function QuartoView() {
         .catch((err) => console.error(err));
     };
 
-    if (!quarto) return <p>Não foi possível encontrar o quarto</p>;
+    if (!quarto) return <div className="conteudo-pagina"><p>Carregando...</p></div>;
 
     return (
-        <div>
-            <h2>Detalhes do Quarto</h2>
+        <div className="conteudo-pagina">
+            <div className="card">
+                <h2 style={{color: 'var(--cor-primaria)', marginBottom: '1.5rem'}}>
+                    {isEditMode ? 'Editar Quarto' : 'Detalhes do Quarto'}
+                </h2>
 
-            {mensagem && <p>{mensagem}</p>}
-
-            <div>
-                <label>Código:</label>
-                {isEditMode ? (
-                    <input
-                        type="text"
-                        name="codigo"
-                        value={currentQuarto.codigo}
-                        onChange={handleEditChange}
-                        required
-                    />
-                ) : (
-                    <p>{quarto.codigo}</p>
+                {mensagem && (
+                    <div className={tipoMensagem === 'sucesso' ? 'alert-sucesso' : 'alert-erro'}>
+                        {mensagem}
+                    </div>
                 )}
-            </div>
 
-            <div>
-                <label>Tipo:</label>
-                {isEditMode ? (
-                    <select
-                        name="tipo"
-                        value={currentQuarto.tipo}
-                        onChange={handleEditChange}
-                    >
-                        <option value="">Selecione...</option>
-                        <option value="solteiro">Solteiro</option>
-                        <option value="duplo">Duplo</option>
-                        <option value="casal">Casal</option>
-                        <option value="suite">Suíte</option>
-                        <option value="luxo">Luxo</option>
-                    </select>
-                ) : (
-                    <p>{quarto.tipo}</p>
-                )}
-            </div>
-            
-            <div>
-                <label>Valor da diária:</label>
-                {isEditMode ? (
-                    <input
-                        type="number"
-                        name="valorDiaria"
-                        value={currentQuarto.valorDiaria}
-                        onChange={handleEditChange}
-                    />
-                ) : (
-                    <p>R$ {quarto.valorDiaria}</p>
-                )}
-            </div>
+                <div className="form-group">
+                    <label>Código:</label>
+                    {isEditMode ? (
+                        <input
+                            type="text"
+                            name="codigo"
+                            value={currentQuarto.codigo}
+                            onChange={handleEditChange}
+                            required
+                        />
+                    ) : (
+                        <p style={{fontSize: '1.1rem', margin: '5px 0 0 0'}}>{quarto.codigo}</p>
+                    )}
+                </div>
 
-            {isEditMode ? (
-                <>
-                    <button onClick={handleSave}>Salvar</button>
-                    <button onClick={() => setIsEditMode(false)}>Cancelar</button>
-                </>
-            ) : (
-                <>
-                    <button onClick={() => setIsEditMode(true)}>Editar</button>
-                    <button onClick={handleDelete}>Excluir</button>
-                </>
-            )}
+                <div className="form-group">
+                    <label>Tipo:</label>
+                    {isEditMode ? (
+                        <select
+                            name="tipo"
+                            value={currentQuarto.tipo}
+                            onChange={handleEditChange}
+                        >
+                            <option value="solteiro">Solteiro</option>
+                            <option value="duplo">Duplo</option>
+                            <option value="casal">Casal</option>
+                            <option value="suite">Suíte</option>
+                            <option value="luxo">Luxo</option>
+                        </select>
+                    ) : (
+                        <p style={{fontSize: '1.1rem', margin: '5px 0 0 0'}}>{quarto.tipo}</p>
+                    )}
+                </div>
+                
+                <div className="form-group">
+                    <label>Valor da diária:</label>
+                    {isEditMode ? (
+                        <input
+                            type="number"
+                            name="valorDiaria"
+                            value={currentQuarto.valorDiaria}
+                            onChange={handleEditChange}
+                        />
+                    ) : (
+                        <p style={{fontSize: '1.1rem', margin: '5px 0 0 0'}}>R$ {quarto.valorDiaria}</p>
+                    )}
+                </div>
+
+                <div className="form-actions" style={{ marginTop: '30px', borderTop: '1px solid #eee', paddingTop: '20px' }}>
+                    {isEditMode ? (
+                        <>
+                            <button onClick={handleSave}>Salvar</button>
+                            <button className="btn-secundario" onClick={() => setIsEditMode(false)}>Cancelar</button>
+                        </>
+                    ) : (
+                        <>
+                            <button onClick={() => setIsEditMode(true)}>Editar</button>
+                            <button className="btn-perigo" onClick={handleDelete}>Excluir</button>
+                            <button className="btn-secundario" onClick={() => navigate('/quartos/lista')}>Voltar</button>
+                        </>
+                    )}
+                </div>
+            </div>
         </div>
     );
 }

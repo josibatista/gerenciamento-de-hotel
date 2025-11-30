@@ -42,7 +42,7 @@ const ClienteForm = () => {
 
             setTimeout(() => {
                 navigate(`/clientes/${data.id}`);
-            }, 1000);
+            }, 2000);
 
         } catch (error) {
             console.error('Erro:', error);
