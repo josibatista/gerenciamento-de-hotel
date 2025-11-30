@@ -1,28 +1,31 @@
 const bcrypt = require('bcrypt');
-const db = require('./models'); 
+const db = require('./config/db_sequelize'); 
+const sequelize = db.sequelize;
+const Administrador = db.Administrador; 
 
 const listaAdmins = [
-    { cpf: '111.111.111-11', senha: '1234', nome: 'Admin Chefe' },
-    { cpf: '222.222.222-22', senha: '1234', nome: 'Recepcionista Manhã' },
-    { cpf: '333.333.333-33', senha: '1234', nome: 'Recepcionista Noite' }
+    { nome: 'Admin Chefe',          cpf: '111.111.111-11', senha: '1234' },
+    { nome: 'Recepcionista Manhã',  cpf: '222.222.222-22', senha: '1234' },
+    { nome: 'Recepcionista Noite',  cpf: '333.333.333-33', senha: '1234' }
 ];
 
 async function criarEquipe() {
-    try {
-        await db.sequelize.sync(); 
+    try {        
+        await sequelize.authenticate();
+        await Administrador.sync(); 
 
         for (const usuario of listaAdmins) {
             
-            const adminExiste = await db.administrador.findOne({ 
+            const adminExiste = await Administrador.findOne({ 
                 where: { cpf: usuario.cpf } 
             });
 
             if (adminExiste) {
-                console.log(`[${usuario.nome}] já existe no sistema.`);
+                console.log(`[${usuario.nome}] já existe. Pulando...`);
             } else {
                 const senhaHash = await bcrypt.hash(usuario.senha, 10);
                 
-                await db.administrador.create({
+                await Administrador.create({
                     nome: usuario.nome,
                     cpf: usuario.cpf,
                     senha: senhaHash
@@ -32,9 +35,10 @@ async function criarEquipe() {
         }
 
     } catch (error) {
-        console.error('❌ Erro:', error);
+        console.error('Erro:', error);
     } finally {
-        await db.sequelize.close();
+        await sequelize.close();
+        console.log('Conexão encerrada.');
         process.exit();
     }
 }
