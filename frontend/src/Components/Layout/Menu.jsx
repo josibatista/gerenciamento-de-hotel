@@ -5,7 +5,7 @@ import "./Menu.css";
 function Menu() {
     // --- SIMULAÇÃO (Depois trocaremos isso pelo Contexto Real) ---
     // Mude aqui manualmente para testar: 'admin', 'cliente' ou null
-    const user = { role: 'admin' }; 
+    const user = null; 
     // -------------------------------------------------------------
 
     return (

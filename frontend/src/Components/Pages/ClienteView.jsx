@@ -109,7 +109,7 @@ function ClienteView() {
 
     return (
         <div className="container">
-            <h2>Detalhes do Cliente</h2>
+            <h2>Detalhes do Perfil</h2>
 
             {mensagem && <p style={{color: 'blue', fontWeight: 'bold'}}>{mensagem}</p>}
 
