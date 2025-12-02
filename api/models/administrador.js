@@ -1,24 +1,26 @@
 module.exports = (sequelize, Sequelize) => {
-    const Quarto = sequelize.define('quarto', {
+    const Administrador = sequelize.define('administrador', {
         id: {
             type: Sequelize.INTEGER,
-            autoIncrement: true, 
+            autoIncrement: true,
             allowNull: false,
             primaryKey: true
         },
-        codigo: {
+        nome: {
             type: Sequelize.STRING,
             allowNull: false,
-            unique: true
+            defaultValue: 'Administrador' 
         },
-        tipo: {
+        cpf: {
             type: Sequelize.STRING,
-            allowNull: false
+            allowNull: false,
+            unique: true 
         },
-        valorDiaria: {
-            type: Sequelize.FLOAT,
+        senha: {
+            type: Sequelize.STRING,
             allowNull: false
         }
     });
-    return Quarto;
+
+    return Administrador;
 }
