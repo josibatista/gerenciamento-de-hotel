@@ -11,11 +11,36 @@ const ClienteForm = () => {
     const [mensagem, setMensagem] = useState('');
 
     const navigate = useNavigate();
+    const handleCpfChange = (e) => {
+        let v = e.target.value;
+        v = v.replace(/\D/g, "");
+        if (v.length > 11) v = v.slice(0, 11);
+        
+        v = v.replace(/(\d{3})(\d)/, "$1.$2");
+        v = v.replace(/(\d{3})(\d)/, "$1.$2");
+        v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+        
+        setCpf(v);
+    };
+
+    const handleTelefoneChange = (e) => {
+        let v = e.target.value;
+        v = v.replace(/\D/g, "");
+        if (v.length > 11) v = v.slice(0, 11);
+
+        v = v.replace(/^(\d{2})(\d)/g, "($1) $2");
+        v = v.replace(/(\d)(\d{4})$/, "$1-$2");
+
+        setTelefone(v);
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setMensagem('');
-        //const token = localStorage.getItem('token');
+        const token = localStorage.getItem('token');
+
+        const cpfLimpo = cpf.replace(/\D/g, '');
+        const telefoneLimpo = telefone.replace(/\D/g, '');
 
         try {
             const response = await fetch('http://localhost:8080/api/clientes', {
@@ -23,14 +48,20 @@ const ClienteForm = () => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ nome, telefone, email, cpf, senha })
+                body: JSON.stringify({ 
+                    nome, 
+                    telefone: telefoneLimpo, 
+                    email, 
+                    cpf: cpfLimpo, 
+                    senha 
+                })
             });
             const data = await response.json(); 
 
             if (!response.ok) {
                 throw new Error(data.error || 'Erro desconhecido ao criar cliente');
             }
-            const id = data.id;
+            
             console.log('Cliente criado:', data);
             setMensagem('Cliente cadastrado com sucesso!');
             // Limpar os campos após o cliente ser cadastrado
@@ -41,8 +72,12 @@ const ClienteForm = () => {
             setSenha('');
 
             setTimeout(() => {
-                navigate(`/clientes/${data.id}`);
-            }, 1000);
+                if (token) {
+                    navigate(`/clientes/${data.id}`);
+                } else {
+                    navigate('/login');
+                }
+            }, 2000);
 
         } catch (error) {
             console.error('Erro:', error);
@@ -80,7 +115,8 @@ const ClienteForm = () => {
                             type="text" 
                             placeholder="(99) 99999-9999" 
                             value={telefone} 
-                            onChange={e => setTelefone(e.target.value)} 
+                            onChange={handleTelefoneChange} 
+                            maxLength="15" 
                             required 
                         />
                     </div>
@@ -102,7 +138,8 @@ const ClienteForm = () => {
                             type="text" 
                             placeholder="999.999.999-99" 
                             value={cpf} 
-                            onChange={e => setCpf(e.target.value)} 
+                            onChange={handleCpfChange} 
+                            maxLength="14"
                             required 
                         />
                     </div>
