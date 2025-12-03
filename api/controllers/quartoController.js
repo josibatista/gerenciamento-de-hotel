@@ -1,6 +1,42 @@
+const { Op } = require('sequelize');
 const db = require('../config/db_sequelize');
 
 module.exports = {
+    
+    //MÉTODO: FILTRAR DISPONIBILIDADE ---
+    async getQuartosDisponiveis(req, res) {
+        try {
+            const { data } = req.query;
+
+            if (!data) {
+                return res.status(400).json({ error: 'Data é obrigatória.' });
+            }
+
+            // Encontra reservas que ocupam essa data
+            const reservasOcupadas = await db.Reserva.findAll({
+                where: {
+                    checkin: { [Op.lte]: data },
+                    checkout: { [Op.gt]: data }
+                },
+                attributes: ['quartoId']
+            });
+            const idsOcupados = reservasOcupadas.map(r => r.quartoId);
+
+            // Busca quartos cujo ID NÃO está na lista de ocupados
+            const quartosLivres = await db.Quarto.findAll({
+                where: {
+                    id: { [Op.notIn]: idsOcupados }
+                }
+            });
+
+            res.status(200).json(quartosLivres);
+
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Erro ao buscar quartos disponíveis' });
+        }
+    },
+
     async postQuarto(req, res) {
         try {
             const quarto = await db.Quarto.create(req.body);
@@ -67,4 +103,4 @@ module.exports = {
             res.status(500).json({ error: 'Erro ao deletar quarto' });
         }
     }
-}
+};

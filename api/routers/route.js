@@ -19,6 +19,7 @@ router.post('/login', authController.login);
 
 router.post('/clientes', clienteController.postCliente); 
 
+router.get('/quartos/disponiveis', quartoController.getQuartosDisponiveis);
 router.get('/quartos', quartoController.getQuartos); 
 router.get('/quartos/:id', quartoController.getQuartoById);
 
