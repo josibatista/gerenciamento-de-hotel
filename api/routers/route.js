@@ -43,5 +43,4 @@ router.post('/quartos', autenticarToken, checkAdmin, quartoController.postQuarto
 router.put('/quartos/:id', autenticarToken, checkAdmin, quartoController.putQuarto);
 router.delete('/quartos/:id', autenticarToken, checkAdmin, quartoController.deleteQuarto);
 
-
 module.exports = router;
