@@ -16,6 +16,21 @@ function ClienteView() {
         cpf: '',
         senha: ''
     });
+    const applyMaskCPF = (v) => {
+        v = v.replace(/\D/g, ""); 
+        if (v.length > 11) v = v.slice(0, 11);
+        v = v.replace(/(\d{3})(\d)/, "$1.$2");
+        v = v.replace(/(\d{3})(\d)/, "$1.$2");
+        v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+        return v;
+    };
+    const applyMaskPhone = (v) => {
+        v = v.replace(/\D/g, "");
+        if (v.length > 11) v = v.slice(0, 11);
+        v = v.replace(/^(\d{2})(\d)/g, "($1) $2"); 
+        v = v.replace(/(\d)(\d{4})$/, "$1-$2");
+        return v;
+    };
 
     useEffect(() => {
         const token = localStorage.getItem('token');
@@ -27,19 +42,26 @@ function ClienteView() {
         })
         .then(resp => resp.json())
         .then(data => {
-            // Se der erro ou não achar
             if(data.error) {
                 setMensagem(data.error);
                 return;
             }
             setCliente(data);
-            setCurrentCliente(data); 
+            setCurrentCliente({
+                ...data,
+                cpf: applyMaskCPF(data.cpf || ''),
+                telefone: applyMaskPhone(data.telefone || ''),
+                senha: '' 
+            }); 
         })
         .catch(err => console.error(err));
     }, [id]);
 
     const handleEditChange = (e) => {
-        const { name, value } = e.target;
+        let { name, value } = e.target;
+        if (name === 'cpf') value = applyMaskCPF(value);
+        if (name === 'telefone') value = applyMaskPhone(value);
+
         setCurrentCliente((prev) => ({
             ...prev,
             [name]: value
@@ -55,13 +77,19 @@ function ClienteView() {
             return;
         }
 
+        const clienteParaSalvar = {
+            ...currentCliente,
+            cpf: currentCliente.cpf.replace(/\D/g, ''),
+            telefone: currentCliente.telefone.replace(/\D/g, '')
+        };
+
         fetch(`http://localhost:8080/api/clientes/${id}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`
             },
-            body: JSON.stringify(currentCliente)
+            body: JSON.stringify(clienteParaSalvar)
         })
         .then(async (resp) => {
             const data = await resp.json();
@@ -71,8 +99,8 @@ function ClienteView() {
             return data;
         })
         .then(data => {
-            setCliente(data); // Atualiza a visualização estática
-            setIsEditMode(false); // Sai do modo edição
+            setCliente(data); 
+            setIsEditMode(false); 
             setMensagem("Editado com sucesso!");
         })
         .catch(err => {
@@ -95,7 +123,6 @@ function ClienteView() {
         })
         .then((resp) => {
             if (!resp.ok) throw new Error('Falha ao excluir cliente');
-            // Redireciona para a lista de clientes
             navigate("/clientes/lista"); 
         })
         .catch((err) => {
@@ -109,8 +136,9 @@ function ClienteView() {
 
     return (
         <div className="conteudo-pagina">
-            <div className="card">
-                <h2 style={{color: 'var(--cor-primaria)', marginBottom: '1.5rem'}}>
+            <div className="card" style={{ maxWidth: '600px', margin: '0 auto' }}>
+                
+                <h2 style={{color: 'var(--cor-primaria)', marginBottom: '1.5rem', textAlign: 'center'}}>
                     {isEditMode ? 'Editar Perfil' : 'Detalhes do Perfil'}
                 </h2>
 
@@ -143,9 +171,12 @@ function ClienteView() {
                             name="telefone"
                             value={currentCliente.telefone}
                             onChange={handleEditChange}
+                            maxLength="15"
                         />
                     ) : (
-                        <p style={{fontSize: '1.1rem', margin: '5px 0 0 0'}}>{cliente.telefone}</p>
+                        <p style={{fontSize: '1.1rem', margin: '5px 0 0 0'}}>
+                            {applyMaskPhone(cliente.telefone || '')}
+                        </p>
                     )}
                 </div>
 
@@ -171,9 +202,12 @@ function ClienteView() {
                             name="cpf"
                             value={currentCliente.cpf}
                             onChange={handleEditChange}
+                            maxLength="14"
                         />
                     ) : (
-                        <p style={{fontSize: '1.1rem', margin: '5px 0 0 0'}}>{cliente.cpf}</p>
+                        <p style={{fontSize: '1.1rem', margin: '5px 0 0 0'}}>
+                            {applyMaskCPF(cliente.cpf || '')}
+                        </p>
                     )}
                 </div>
 
