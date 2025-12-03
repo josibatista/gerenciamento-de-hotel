@@ -87,7 +87,7 @@ function ReservaList() {
                             <th>Cliente</th>
                             <th>Check-in</th>
                             <th>Check-out</th>
-                            {showAcoesHeader && <th>Ações</th>} 
+                            {showAcoesHeader && <th style={{ textAlign: 'right' }}>Ações</th>} 
                         </tr>
                     </thead>
 
@@ -109,7 +109,7 @@ function ReservaList() {
 
                                     {canModify && (
                                         <td>
-                                            <div style={{ display: "flex", gap: "10px" }}>
+                                            <div style={{ display: "flex", gap: "10px", justifyContent: 'flex-end' }}>
 
                                                 <button
                                                     onClick={(e) => {

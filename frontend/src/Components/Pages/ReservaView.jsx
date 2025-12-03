@@ -177,21 +177,93 @@ const ReservaView = () => {
 
         if (name === "quartoId") carregarReservasDoQuarto(value);
     };
+    const handleSave = async () => {
+        setMensagem("");
+        
+        const inicio = new Date(form.checkin);
+        const fim = new Date(form.checkout);
+        const temConflito = reservasQuarto.some(r => {
+            const rInicio = new Date(fixDate(r.checkin));
+            const rFim = new Date(fixDate(r.checkout));
+            return (inicio < rFim && fim > rInicio);
+        });
+
+        if (temConflito) {
+            setMensagem("Este quarto já está ocupado nas datas selecionadas.");
+            setTipoMensagem("erro");
+            return;
+        }
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/reservas/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify(form)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Erro ao atualizar reserva');
+            }
+
+            setReserva(data);
+            setIsEditMode(false);
+            setMensagem("Reserva atualizada com sucesso!");
+            setTipoMensagem("sucesso");
+
+        } catch (error) {
+            console.error(error);
+            setMensagem(error.message);
+            setTipoMensagem("erro");
+        }
+    };
+    const handleDelete = async () => {
+        if (!window.confirm("Tem certeza que deseja cancelar esta reserva?")) return;
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/reservas/${id}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error('Falha ao excluir reserva');
+            }
+
+            navigate("/reservas/lista");
+        } catch (error) {
+            console.error(error);
+            setMensagem("Erro ao excluir: " + error.message);
+            setTipoMensagem("erro");
+        }
+    };
 
     const formatarDataBR = (dataISO) => {
+        if(!dataISO) return "";
         const [ano, mes, dia] = dataISO.split("-");
         return `${dia}/${mes}/${ano}`;
     };
 
-    if (!reserva) return <p>Carregando...</p>;
+    if (!reserva) return <div className="conteudo-pagina"><p>Carregando...</p></div>;
 
     const isOwner = Number(reserva.clienteId) === currentUserId;
     const canModify = isAdmin || isOwner;
 
     return (
         <div className="conteudo-pagina">
-            <div className="card">
-                <h2>{isEditMode ? "Editar Reserva" : "Detalhes da Reserva"}</h2>
+            
+            <div className="card" style={{ maxWidth: '600px', margin: '0 auto' }}>
+                
+                <h2 style={{color: 'var(--cor-primaria)', marginBottom: '1.5rem', textAlign: 'center'}}>
+                    {isEditMode ? "Editar Reserva" : "Detalhes da Reserva"}
+                </h2>
 
                 {mensagem && (
                     <div className={tipoMensagem === "sucesso" ? "alert-sucesso" : "alert-erro"}>
@@ -200,12 +272,12 @@ const ReservaView = () => {
                 )}
 
                 {isEditMode && intervalosOcupados.length > 0 && (
-                    <div className="datas-ocupadas">
-                        <h4>Datas ocupadas deste quarto:</h4>
-                        <ul>
+                    <div className="datas-ocupadas" style={{backgroundColor: '#fff3cd', padding: '10px', borderRadius: '4px', marginBottom: '15px'}}>
+                        <h4 style={{margin: '0 0 5px 0', fontSize: '0.9rem', color: '#856404'}}>Datas indisponíveis neste quarto:</h4>
+                        <ul style={{margin: 0, paddingLeft: '20px', fontSize: '0.85rem', color: '#856404'}}>
                             {intervalosOcupados.map((i, idx) => (
                                 <li key={idx}>
-                                    — {formatarDataBR(i.inicio)} até {formatarDataBR(i.fim)}
+                                    {formatarDataBR(i.inicio)} até {formatarDataBR(i.fim)}
                                 </li>
                             ))}
                         </ul>
@@ -217,7 +289,7 @@ const ReservaView = () => {
                     {isEditMode ? (
                         <input type="date" name="checkin" min={todayDate} value={form.checkin} onChange={handleChange} />
                     ) : (
-                        <p>{formatarDataBR(form.checkin)}</p>
+                        <p style={{fontSize: '1.1rem', margin: '5px 0 0 0'}}>{formatarDataBR(form.checkin)}</p>
                     )}
                 </div>
 
@@ -226,7 +298,7 @@ const ReservaView = () => {
                     {isEditMode ? (
                         <input type="date" name="checkout" min={minCheckoutDate} value={form.checkout} onChange={handleChange} />
                     ) : (
-                        <p>{formatarDataBR(form.checkout)}</p>
+                        <p style={{fontSize: '1.1rem', margin: '5px 0 0 0'}}>{formatarDataBR(form.checkout)}</p>
                     )}
                 </div>
 
@@ -239,7 +311,7 @@ const ReservaView = () => {
                             ))}
                         </select>
                     ) : (
-                        <p>{reserva.cliente?.nome}</p>
+                        <p style={{fontSize: '1.1rem', margin: '5px 0 0 0'}}>{reserva.cliente?.nome || "Carregando..."}</p>
                     )}
                 </div>
 
@@ -255,24 +327,24 @@ const ReservaView = () => {
                             ))}
                         </select>
                     ) : (
-                        <p>{reserva.quarto?.codigo}</p>
+                        <p style={{fontSize: '1.1rem', margin: '5px 0 0 0'}}>{reserva.quarto?.codigo || "Carregando..."}</p>
                     )}
                 </div>
 
                 <div className="form-group">
                     <label>Total de diárias:</label>
-                    <p>{form.totalDiarias}</p>
+                    <p style={{fontSize: '1.1rem', margin: '5px 0 0 0', fontWeight: 'bold'}}>{form.totalDiarias}</p>
                 </div>
 
                 <div className="form-group">
                     <label>Valor total:</label>
-                    <p>R$ {form.valorTotal}</p>
+                    <p style={{fontSize: '1.1rem', margin: '5px 0 0 0', fontWeight: 'bold', color: 'var(--cor-secundaria)'}}>R$ {form.valorTotal}</p>
                 </div>
 
-                <div className="form-actions">
+                <div className="form-actions" style={{ marginTop: '30px', borderTop: '1px solid #eee', paddingTop: '20px' }}>
                     {isEditMode ? (
                         <>
-                            <button onClick={() => {}}>Salvar</button>
+                            <button onClick={handleSave}>Salvar</button>
                             <button className="btn-secundario" onClick={() => { setIsEditMode(false); setMensagem(""); }}>Cancelar</button>
                         </>
                     ) : (
@@ -280,7 +352,7 @@ const ReservaView = () => {
                             {canModify && (
                                 <>
                                     <button onClick={() => setIsEditMode(true)}>Editar</button>
-                                    <button className="btn-perigo" onClick={() => {}}>Excluir</button>
+                                    <button className="btn-perigo" onClick={handleDelete}>Cancelar Reserva</button>
                                 </>
                             )}
                             <button className="btn-secundario" onClick={() => navigate("/reservas/lista")}>Voltar</button>
