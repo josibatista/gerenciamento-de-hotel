@@ -33,7 +33,7 @@ router.get('/reservas/:id', autenticarToken, reservaController.getReservaById);
 
 router.put('/reservas/:id', autenticarToken, reservaController.putReserva);
 router.delete('/reservas/:id', autenticarToken, reservaController.deleteReserva);
-
+router.get("/quartos/:id/reservas", autenticarToken, reservaController.getReservasPorQuarto);
 
 //ROTAS EXCLUSIVAS ADMIN
 router.get('/clientes', autenticarToken, checkAdmin, clienteController.getClientes);
