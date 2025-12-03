@@ -66,7 +66,7 @@ const QuartoForm = () => {
             }
 
             const data = await response.json();
-            console.log('Quarto criado:', data);
+            console.log('Quarto cadastrado:', data);
             setMensagem('Quarto cadastrado com sucesso!');
             setTipoMensagem('sucesso');
 
@@ -80,7 +80,7 @@ const QuartoForm = () => {
             }, 2000);
 
         } catch(error) {
-            console.error('Erro ao criar quarto:', error);
+            console.error('Erro ao cadastrar quarto:', error);
             setMensagem('Erro ao cadastrar quarto');
             setTipoMensagem('erro');
         }

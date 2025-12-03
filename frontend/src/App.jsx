@@ -16,6 +16,10 @@ import QuartoForm from './Components/Pages/QuartoForm';
 import QuartoList from './Components/Pages/QuartoList'; 
 import QuartoView from './Components/Pages/QuartoView';
 
+import ReservaForm from './Components/Pages/ReservaForm';
+import ReservaList from './Components/Pages/ReservaList';
+import ReservaView from './Components/Pages/ReservaView';
+
 function App() {
   return (
     <Router>
@@ -38,7 +42,11 @@ function App() {
           <Route path="/quartos/lista" element={<QuartoList />} />
           <Route path="/quartos/:id" element={<QuartoView />} />
            
-
+            {/* --- ROTAS DE RESERVAS --- */}
+            
+          <Route path="/reservas/lista" element={<ReservaList />} />
+          <Route path="/reservas" element={<ReservaForm />} /> 
+          <Route path="/reservas/:id" element={<ReservaView />} />
         </Routes>
 
       </div>
