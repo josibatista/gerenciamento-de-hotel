@@ -74,6 +74,25 @@ module.exports = {
         }
     },
 
+    async getReservasPorQuarto(req, res) {
+        try {
+            const { id } = req.params;
+
+            const reservas = await Reserva.findAll({
+                where: { quartoId: id },
+                include: [
+                    { model: Cliente, as: "cliente" },
+                    { model: Quarto, as: "quarto" }
+                ]
+            });
+
+            res.json(reservas);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Erro ao buscar reservas do quarto" });
+        }
+    },
+
     async getReservas(req, res) {
         try {
             const usuario = req.user;
