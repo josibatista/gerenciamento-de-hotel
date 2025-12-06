@@ -4,9 +4,9 @@ const sequelize = db.sequelize;
 const Administrador = db.Administrador; 
 
 const listaAdmins = [
-    { nome: 'Admin Chefe',          cpf: '111.111.111-11', senha: '1234' },
-    { nome: 'Recepcionista Manhã',  cpf: '222.222.222-22', senha: '1234' },
-    { nome: 'Recepcionista Noite',  cpf: '333.333.333-33', senha: '1234' }
+    { nome: 'Admin Chefe',          cpf: '11111111111', senha: '1234' },
+    { nome: 'Recepcionista Manhã',  cpf: '22222222222', senha: '1234' },
+    { nome: 'Recepcionista Noite',  cpf: '33333333333', senha: '1234' }
 ];
 
 async function criarEquipe() {

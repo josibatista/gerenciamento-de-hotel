@@ -3,56 +3,67 @@ import { useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
 function ReservaList() {
-const navigate = useNavigate();
-const [reservas, setReservas] = useState([]);
-const [role, setRole] = useState(null);
-const [userId, setUserId] = useState(null);
+    const navigate = useNavigate();
+    const [reservas, setReservas] = useState([]);
+    const [role, setRole] = useState(null);
+    const [userId, setUserId] = useState(null);
 
-useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return;
+    const formatarData = (isoString) => {
+        if (!isoString) return "—";
+        const [ano, mes, dia] = isoString.split("T")[0].split("-");
+        return `${dia}/${mes}/${ano}`;
+    };
 
-    const decoded = jwtDecode(token);
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (!token) return;
 
-    setRole(decoded.role);
-    setUserId(decoded.id);
+        const decoded = jwtDecode(token);
 
-    const url = "http://localhost:8080/api/reservas";
+        setRole(decoded.role);
+        setUserId(decoded.id);
 
-    fetch(url, {
-        headers: {
-            "Authorization": `Bearer ${token}`
-        }
-    })
-        .then(resp => {
-            if (!resp.ok) throw new Error("Erro ao carregar reservas");
-            return resp.json();
+        fetch("http://localhost:8080/api/reservas", {
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
         })
-        .then(data => setReservas(data))
-        .catch(err => console.error(err));
-}, []);
+            .then(resp => {
+                if (!resp.ok) throw new Error("Erro ao carregar reservas");
+                return resp.json();
+            })
+            .then(data => {
+                const ordenadas = [...data].sort((a, b) => {
+                    const d1 = new Date(a.checkin);
+                    const d2 = new Date(b.checkin);
+                    return d1 - d2;
+                });
+                setReservas(ordenadas);
+            })
+            .catch(err => console.error(err));
+    }, []);
 
-const handleDelete = (id) => {
-    if (!window.confirm("Deseja excluir esta reserva?")) return;
+    const handleDelete = (id) => {
+        if (!window.confirm("Deseja excluir esta reserva?")) return;
 
-    const token = localStorage.getItem("token");
+        const token = localStorage.getItem("token");
 
-    fetch(`http://localhost:8080/api/reservas/${id}`, {
-        method: "DELETE",
-        headers: {
-            "Authorization": `Bearer ${token}`
-        }
-    })
-        .then((resp) => {
-            if (!resp.ok) throw new Error("Falha ao excluir reserva");
-            setReservas(reservas.filter((r) => r.id !== id));
+        fetch(`http://localhost:8080/api/reservas/${id}`, {
+            method: "DELETE",
+            headers: {
+                "Authorization": `Bearer ${token}`
+            }
         })
-        .catch((err) => console.error(err));
-};
+            .then((resp) => {
+                if (!resp.ok) throw new Error("Falha ao excluir reserva");
+                setReservas(reservas.filter((r) => r.id !== id));
+            })
+            .catch((err) => console.error(err));
+    };
 
-const isAdmin = role === "admin";
+    const isAdmin = role === "admin";
     const showAcoesHeader = isAdmin || reservas.some(r => r.clienteId === userId);
-    
+
     return (
         <div className="conteudo-pagina">
             <div style={{
@@ -76,7 +87,7 @@ const isAdmin = role === "admin";
                             <th>Cliente</th>
                             <th>Check-in</th>
                             <th>Check-out</th>
-                            {showAcoesHeader && <th>Ações</th>} 
+                            {showAcoesHeader && <th style={{ textAlign: 'right' }}>Ações</th>} 
                         </tr>
                     </thead>
 
@@ -92,13 +103,14 @@ const isAdmin = role === "admin";
                                 >
                                     <td>{r.quarto?.codigo ?? "—"}</td>
                                     <td>{r.cliente?.nome ?? "—"}</td>
-                                    <td>{new Date(r.checkin).toLocaleDateString()}</td>
-                                    <td>{new Date(r.checkout).toLocaleDateString()}</td>
+
+                                    <td>{formatarData(r.checkin)}</td>
+                                    <td>{formatarData(r.checkout)}</td>
 
                                     {canModify && (
                                         <td>
-                                            <div style={{ display: "flex", gap: "10px" }}>
-                                                
+                                            <div style={{ display: "flex", gap: "10px", justifyContent: 'flex-end' }}>
+
                                                 <button
                                                     onClick={(e) => {
                                                         e.stopPropagation();
@@ -126,6 +138,7 @@ const isAdmin = role === "admin";
                                 </tr>
                             );
                         })}
+
                         {reservas.length === 0 && (
                             <tr>
                                 <td 

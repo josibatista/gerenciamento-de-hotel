@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { jwtDecode } from "jwt-decode"; 
+import { useNavigate } from 'react-router-dom';
 
 function QuartoList() {
     const navigate = useNavigate();
     const [quartos, setQuartos] = useState([]);
     const [isAdmin, setIsAdmin] = useState(false); 
     const [mensagem, setMensagem] = useState('');
+    const [dataFiltro, setDataFiltro] = useState('');
     const [currentQuarto, setCurrentQuarto] = useState({
         codigo: '',
         tipo: '',
@@ -14,48 +14,56 @@ function QuartoList() {
     });
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (!token) return;
+        const role = localStorage.getItem('userRole');
+        if (role === 'admin') {
+            setIsAdmin(true);
+        }
+        buscarQuartos();
+    }, []);
 
-        try {
-            const decoded = jwtDecode(token);
-            if (decoded.role === 'admin') {
-                setIsAdmin(true);
-            }
-        } catch (error) {
-            console.error("Token inválido:", error);
-            // Continua, mas o usuário não terá permissões de admin
+    const buscarQuartos = () => {
+        const token = localStorage.getItem('token');
+        setMensagem('');
+        
+        let url = 'http://localhost:8080/api/quartos';
+        if (dataFiltro) {
+            url = `http://localhost:8080/api/quartos/disponiveis?data=${dataFiltro}`;
         }
 
-
-        fetch('http://localhost:8080/api/quartos', {
+        fetch(url, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                ...(token && { 'Authorization': `Bearer ${token}` })
             }
         })
         .then((resp) => {
             if (!resp.ok) {
-                // Se o backend estiver usando o checkAdmin na rota GET /quartos,
-                if (resp.status === 403) {
-                     console.warn("Acesso negado à lista completa de quartos.");
-                     setMensagem("Acesso negado à lista completa de quartos.");
-                }
-                throw new Error('Falha ao obter quartos');
+                if (resp.status === 403) setMensagem("Acesso negado.");
+                throw new Error('Falha ao buscar quartos');
             }
             return resp.json();
         })
-        .then((data) => setQuartos(data))
-        .catch((err) => console.log(err));
-    }, []);
+        .then((data) => {
+            // Garante que 'data' seja um array antes de salvar
+            if (Array.isArray(data)) {
+                setQuartos(data);
+                if (dataFiltro && data.length === 0) {
+                    setMensagem("Nenhum quarto disponível para esta data.");
+                }
+            } else {
+                setQuartos([]);
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+            setMensagem("Erro ao carregar lista.");
+            setQuartos([]);
+        });
+    };
 
     const handleDelete = (id) => {
-        if (!isAdmin) { 
-            alert('Acesso negado para exclusão de quartos.');
-            return;
-        }
-
+        if (!isAdmin) return;
         if(!window.confirm("Deseja realmente excluir este quarto?")) return;
 
         const token = localStorage.getItem('token');
@@ -68,16 +76,10 @@ function QuartoList() {
             }
         })
         .then((resp) => {
-            if (resp.status === 403) {
-                 alert('Você não tem permissão para excluir quartos.');
-                 throw new Error('Permissão negada');
-            }
-            if (!resp.ok) {
-                throw new Error('Falha ao excluir quarto');
-            }
-            setQuartos(quartos.filter((quarto) => quarto.id !== id));
+            if (!resp.ok) throw new Error('Erro ao excluir');
+            setQuartos(quartos.filter((q) => q.id !== id));
         })
-        .catch((err) => console.error(err));
+        .catch(err => alert(err.message));
     };
 
     return (
@@ -89,6 +91,34 @@ function QuartoList() {
 
             {mensagem && <div className="alert-erro">{mensagem}</div>}
 
+            <div className="card" style={{ marginBottom: '20px', padding: '15px', backgroundColor: '#f8f9fa' }}>
+                <div className="form-group" style={{ marginBottom: 0, justifyContent: 'center', display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                    <label style={{ margin: 0, whiteSpace: 'nowrap' }}>Verificar disponibilidade:</label>
+                    <input 
+                        type="date" 
+                        value={dataFiltro}
+                        min={new Date().toISOString().split("T")[0]}
+                        onChange={(e) => setDataFiltro(e.target.value)}
+                        style={{ maxWidth: '200px' }}
+                    />
+                    <button onClick={buscarQuartos} style={{ padding: '8px 15px' }}>
+                        Filtrar
+                    </button>
+                    {dataFiltro && (
+                        <button 
+                            className="btn-secundario" 
+                            onClick={() => { 
+                                setDataFiltro(''); 
+                                setTimeout(() => window.location.reload(), 100); 
+                            }} 
+                            style={{ padding: '8px 12px' }}
+                        >
+                            Limpar
+                        </button>
+                    )}
+                </div>
+            </div>
+
             <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
                 <table>
                     <thead>
@@ -96,26 +126,26 @@ function QuartoList() {
                             <th>Código</th>
                             <th>Tipo</th>
                             <th>Valor Diária</th>
+                            {dataFiltro && <th>Status</th>}
                             {isAdmin && <th style={{ width: '200px' }}>Ações</th>}
                         </tr>
                     </thead>
-
                     <tbody>
                         {quartos.map((quarto) => (
                             <tr key={quarto.id}>
                                 <td>{quarto.codigo}</td>
                                 <td>{quarto.tipo}</td>
                                 <td>R$ {quarto.valorDiaria}</td>
-                                
+                                {dataFiltro && (
+                                    <td>
+                                        <span style={{ color: 'green', fontWeight: 'bold' }}>Disponível</span>
+                                    </td>
+                                )}
                                 {isAdmin && (
                                     <td>
                                         <div style={{ display: 'flex', gap: '10px' }}>
-                                            <button onClick={() => navigate(`/quartos/${quarto.id}`)}>
-                                                Visualizar
-                                            </button>
-                                            <button className="btn-perigo" onClick={() => handleDelete(quarto.id)}>
-                                                Excluir
-                                            </button>
+                                            <button onClick={() => navigate(`/quartos/${quarto.id}`)}>Visualizar</button>
+                                            <button className="btn-perigo" onClick={() => handleDelete(quarto.id)}>Excluir</button>
                                         </div>
                                     </td>
                                 )}
@@ -123,7 +153,11 @@ function QuartoList() {
                         ))}
                         {quartos.length === 0 && (
                             <tr>
-                                <td colSpan={isAdmin ? "4" : "3"} style={{textAlign: 'center', padding: '20px'}}>Nenhum quarto encontrado.</td>
+                                <td colSpan="5" style={{textAlign: 'center', padding: '20px'}}>
+                                    {dataFiltro 
+                                        ? "Nenhum quarto disponível nesta data." 
+                                        : "Nenhum quarto cadastrado."}
+                                </td>
                             </tr>
                         )}
                     </tbody>

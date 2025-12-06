@@ -19,6 +19,7 @@ router.post('/login', authController.login);
 
 router.post('/clientes', clienteController.postCliente); 
 
+router.get('/quartos/disponiveis', quartoController.getQuartosDisponiveis);
 router.get('/quartos', quartoController.getQuartos); 
 router.get('/quartos/:id', quartoController.getQuartoById);
 
@@ -33,7 +34,7 @@ router.get('/reservas/:id', autenticarToken, reservaController.getReservaById);
 
 router.put('/reservas/:id', autenticarToken, reservaController.putReserva);
 router.delete('/reservas/:id', autenticarToken, reservaController.deleteReserva);
-
+router.get("/quartos/:id/reservas", autenticarToken, reservaController.getReservasPorQuarto);
 
 //ROTAS EXCLUSIVAS ADMIN
 router.get('/clientes', autenticarToken, checkAdmin, clienteController.getClientes);
@@ -42,6 +43,5 @@ router.delete('/clientes/:id', autenticarToken, checkAdmin, clienteController.de
 router.post('/quartos', autenticarToken, checkAdmin, quartoController.postQuarto);
 router.put('/quartos/:id', autenticarToken, checkAdmin, quartoController.putQuarto);
 router.delete('/quartos/:id', autenticarToken, checkAdmin, quartoController.deleteQuarto);
-
 
 module.exports = router;

@@ -112,8 +112,9 @@ function QuartoView() {
 
     return (
         <div className="conteudo-pagina">
-            <div className="card">
-                <h2 style={{color: 'var(--cor-primaria)', marginBottom: '1.5rem'}}>
+            <div className="card" style={{ maxWidth: '600px', margin: '0 auto' }}>
+                
+                <h2 style={{color: 'var(--cor-primaria)', marginBottom: '1.5rem', textAlign: 'center'}}>
                     {isEditMode ? 'Editar Quarto' : 'Detalhes do Quarto'}
                 </h2>
 

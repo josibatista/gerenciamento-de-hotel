@@ -6,8 +6,11 @@ const secretKey = 'secret_key';
 module.exports = {
     async login(req, res) {
         try {
-            // Recebe cpf, senha e o booleano 'admin' do Front-End
-            const { cpf, senha, admin } = req.body;
+            let { cpf, senha, admin } = req.body;
+            
+            if (cpf) {
+                cpf = cpf.replace(/\D/g, '');
+            }
             
             let user = null;
             let role = '';
